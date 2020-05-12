@@ -1,0 +1,49 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    memcached:
+      image: memcached:alpine
+      container_name: squire-core-memcached
+
+    redis:
+      image: redis:alpine
+      container_name: squire-core-redis
+
+    postgres:
+      image: postgres:11.1-alpine
+      container_name: squire-core-postgres
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=teste
+        - POSTGRES_DB=squire_db
+      ports:
+        - "8004:5432"
+
+    elasticsearch:
+      image: elasticsearch:6.5.4
+      container_name: squire-core-elasticsearch
+
+    webserver:
+      image: nginx:alpine
+      container_name: squire-core-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8000:80"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: squire-core-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+
